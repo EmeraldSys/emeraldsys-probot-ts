@@ -6,6 +6,7 @@
   "scripts": {
     "start": "probot run ./dist/app.js",
     "build": "tsc",
+    "run": "tsc && probot run ./dist/app.js",
     "test": "ts-node ./test/app.test.ts"
   },
   "author": "Gregor Martynus (https://twitter.com/gr2m)",
