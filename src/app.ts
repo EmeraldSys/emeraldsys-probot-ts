@@ -8,4 +8,10 @@ export default (app: Probot) => {
       context.issue({ body: "Hello, World!" })
     );
   });
+
+  app.on("issue_comment.created", async (context: Context) => {
+    return context.octokit.issues.createComment(
+      context.issue({ body: "Thanks for the comment!" })
+    );
+  });
 };
