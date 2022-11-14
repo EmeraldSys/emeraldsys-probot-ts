@@ -6,8 +6,34 @@ export default (app: Probot) => {
   app.on("issues.opened", async (context: Context) => {
     const config = await context.config<Config>("esysConfig.yml");
     if (config && config.newIssueComment) {
-      return context.octokit.issues.createComment(
+      context.octokit.issues.createComment(
         context.issue({ body: config.newIssueComment })
+      );
+    }
+
+    // Find labels
+    let labelList: string[] = [];
+    let labelsToAdd: string[] = [];
+
+    const labels = await context.octokit.issues.listLabelsForRepo(
+      context.issue({ per_page: 100 })
+    );
+    const issue = await context.octokit.issues.get(
+      // @ts-ignore
+      context.issue({ issue_number: context.payload.issue.number })
+    );
+
+    labels.data.map(label => labelList.push(label.name));
+    labelList.map(label => issue.data.title.toLowerCase().startsWith(`[${label.toLowerCase()}]`) ? labelsToAdd.push(label) : null);
+
+    // Only add one label for now
+    if (labelsToAdd.length === 1) {
+      return context.octokit.issues.addLabels(
+        context.issue({
+          // @ts-ignore
+          issue_number: context.payload.issue.number,
+          labels: labelsToAdd
+        })
       );
     }
   });
